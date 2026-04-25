@@ -4,9 +4,7 @@ Bittensor subnet that produces uncontaminated evaluation problems for frontier l
 
 Beachhead: code (SWE-bench-Pro-style sandboxed Docker graders). Math (Lean 4 + mathlib4) added later.
 
-Mechanism: V8 three-role GAN-style (generator + discriminator + solver miners), inspired by Macrocosmos' [Apex 3.0](https://macrocosmosai.substack.com/p/apex-30-game-theoretic-ai-on-bittensor) and [GAN-style cross-miner oversight](https://macrocosmosai.substack.com/p/sn1-apex-introducing-gan-style-activity). V9 cross-subnet judgement oracle layered on top.
-
-Full design rationale (gate audit, anti-exploit catalog, BIT-0011 Conviction context, gate-9 argument, cross-subnet composability): `docs/subnet-design-frontier-eval.md` in the [idea-research](../idea-research) repo.
+Mechanism: three-role GAN-style (generator + discriminator + solver miners), inspired by Macrocosmos' [Apex 3.0](https://macrocosmosai.substack.com/p/apex-30-game-theoretic-ai-on-bittensor) and [GAN-style cross-miner oversight](https://macrocosmosai.substack.com/p/sn1-apex-introducing-gan-style-activity). Cross-subnet judgement oracle layered on top.
 
 ## Relationship to Apex
 
@@ -74,7 +72,7 @@ neurons/
 
 ## Multi-mechanism
 
-Per V8: three mechanisms with `sudo_set_mechanism_emission_split([32767, 16384, 16384])` for [50%, 25%, 25%] (generator-heavy at launch).
+Three mechanisms with `sudo_set_mechanism_emission_split([32767, 16384, 16384])` for [50%, 25%, 25%] (generator-heavy at launch).
 
 ## Local dev
 

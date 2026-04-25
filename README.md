@@ -18,6 +18,8 @@ The three-role GAN mechanism (generator + discriminator + solver miners) is the 
 
 Beachhead: code-track in Python (SWE-bench-Pro-style sandboxed Docker graders). Code-track in Rust as a follow-up domain. Math-track (Lean 4 + mathlib4) added once the code track is stable. Cross-subnet judgement oracle layered on top.
 
+Demand pull: OpenAI deprecated [SWE-bench Verified](https://www.swebench.com/) in favor of [SWE-bench Pro](https://labs.scale.com/leaderboard/swe_bench_pro_public) in early 2026 due to contamination concerns. Claude Opus 4.5 scored 80.9% on Verified vs 45.9% on Pro. Frontier labs are operationally paying the cost of contaminated benchmarks right now.
+
 ## Relationship to Apex
 
 We borrow the adversarial-game pattern from Apex 3.0 (SN1). The product, scoring, and ground truth differ:
@@ -99,6 +101,12 @@ neurons/
 ## Multi-mechanism
 
 Three mechanisms with `sudo_set_mechanism_emission_split([32767, 16384, 16384])` for [50%, 25%, 25%] (generator-heavy at launch).
+
+**Graceful degradation when the discriminator pool is small.** The validator only computes a discriminator-consensus signal when at least `min_discriminators_per_problem` (default 3) responsive discriminators reply for a given problem. Below the floor, the generator is scored on novelty plus solver-failrate alone, so the mechanism stays functional through cold-start before a discriminator market forms.
+
+## Lean toolchain pinning
+
+Math-track validators MUST use the exact Lean version pinned in [`lean-toolchain`](lean-toolchain) at the repo root. Different versions produce different typecheck behavior and break ground-truth consistency across the validator set. The `oracles.lean.verify_toolchain()` helper checks the running `lean` against the pinned version and refuses to proceed on mismatch. Update the pinned version on a coordinated subnet rotation, not unilaterally.
 
 ## Calibration
 

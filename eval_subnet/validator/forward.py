@@ -29,6 +29,7 @@ async def forward(self):
     band_max = getattr(cfg, "difficulty_target_max", 0.95)
     k_disc = getattr(cfg, "k_discriminators", 20)
     k_solv = getattr(cfg, "k_solvers", 3)
+    min_disc = getattr(cfg, "min_discriminators_per_problem", 3)
     corpus_index_path = getattr(cfg, "corpus_index_path", None)
     panel = _parse_panel(getattr(cfg, "frontier_panel", None))
 
@@ -111,9 +112,12 @@ async def forward(self):
             panel_result=problem["panel_result"],
         )
         disc_calls = discriminator_results.get(ph, [])
-        disc_consensus_novel = (
-            1.0 - (sum(c for _, c in disc_calls) / len(disc_calls)) if disc_calls else 0.5
-        )
+        if len(disc_calls) >= min_disc:
+            disc_consensus_novel = 1.0 - (sum(c for _, c in disc_calls) / len(disc_calls))
+        else:
+            # graceful degradation: discriminator pool below floor; assume novel
+            # and let solver_failrate carry the difficulty signal on its own
+            disc_consensus_novel = 1.0
         solver_calls = solver_results.get(ph, [])
         solver_failrate = (
             1.0 - (sum(int(g) for _, g in solver_calls) / len(solver_calls))

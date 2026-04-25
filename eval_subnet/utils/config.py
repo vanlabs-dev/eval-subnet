@@ -296,6 +296,13 @@ def add_validator_args(cls, parser):
     )
 
     parser.add_argument(
+        "--neuron.min_discriminators_per_problem",
+        type=int,
+        help="Minimum responsive discriminators required to compute the discriminator-consensus signal. Below this floor the generator is scored on novelty plus solver-failrate alone (graceful degradation when the discriminator pool is small).",
+        default=3,
+    )
+
+    parser.add_argument(
         "--wandb.project_name",
         type=str,
         help="The name of the project where you are sending the new run.",

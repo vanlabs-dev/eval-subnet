@@ -3,8 +3,8 @@ import bittensor as bt
 
 SUPPORTED_DOMAINS_AT_LAUNCH = {"code_python"}
 PLANNED_DOMAINS = {
-    "code_rust": "month 3",
-    "math_lean4": "month 6 (Lean kernel terms, not tree-sitter)",
+    "code_rust": "follow-up code track",
+    "math_lean4": "deferred until math track goes live (Lean kernel terms, not tree-sitter)",
 }
 
 

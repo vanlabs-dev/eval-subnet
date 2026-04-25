@@ -9,32 +9,33 @@ CHUTES_BASE_URL = os.environ.get("CHUTES_BASE_URL", "https://api.chutes.ai")
 DEFAULT_BUDGET_SEC = 300
 
 
-# Flagship and elder tiers by vendor. Cutoff diversity catches the
-# "flagship fails but elder solves" signal that points to memorization in
-# older training corpora that newer models trained around.
+# Display names. Resolved to Chutes endpoint IDs at call time by the
+# integration layer. Verify availability against the live SN64 chute
+# inventory before any real implementation; vendor IDs and Chutes slugs
+# differ from these human-readable names.
 FLAGSHIP_MODELS = [
-    "claude-opus-4-7",
-    "gpt-5-3-codex",
-    "gemini-3-1-pro",
+    "Claude Opus 4.7",
+    "GPT-5.3 Codex",
+    "Gemini 3.1 Pro",
 ]
 ELDER_MODELS = [
-    "claude-sonnet-3-5",
-    "gpt-4o",
-    "gemini-1-5-pro",
+    "Claude Sonnet 3.5",
+    "GPT-4o",
+    "Gemini 1.5 Pro",
 ]
 DEFAULT_PANEL = FLAGSHIP_MODELS + ELDER_MODELS
 
 
 # Approximate training cutoffs per model. Update on panel rotation; the value
 # is recorded with each accepted problem so historical scoring stays auditable
-# even after vendor cutoff revisions.
+# even after vendor cutoff revisions. Verify against vendor model cards.
 MODEL_CUTOFFS = {
-    "claude-opus-4-7": "2026-Q1",
-    "gpt-5-3-codex": "2025-Q4",
-    "gemini-3-1-pro": "2026-Q1",
-    "claude-sonnet-3-5": "2024-Q2",
-    "gpt-4o": "2023-Q4",
-    "gemini-1-5-pro": "2024-Q2",
+    "Claude Opus 4.7": "2026-Q1",
+    "GPT-5.3 Codex": "2025-Q4",
+    "Gemini 3.1 Pro": "2026-Q1",
+    "Claude Sonnet 3.5": "2024-Q2",
+    "GPT-4o": "2023-Q4",
+    "Gemini 1.5 Pro": "2024-Q2",
 }
 
 
@@ -57,6 +58,9 @@ async def panel_inference(
     training cutoffs at call time, so later audits can verify which panel a problem
     was scored against. Panel rotates on subnet governance vote; the snapshot is
     what defends against drift.
+
+    Panel entries are display names; the real implementation resolves them to
+    Chutes endpoint IDs at call time.
     """
     panel = panel if panel is not None else DEFAULT_PANEL
     cutoffs = [MODEL_CUTOFFS.get(m, "unknown") for m in panel]

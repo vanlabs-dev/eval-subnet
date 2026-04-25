@@ -16,7 +16,7 @@ Bittensor subnet building a permissionless contamination-detection R&D network. 
 
 The three-role GAN mechanism (generator + discriminator + solver miners) is the incentive structure that pays contributors to keep the contamination layer evolving against frontier models. Inspired by Macrocosmos' [Apex 3.0](https://macrocosmosai.substack.com/p/apex-30-game-theoretic-ai-on-bittensor) and [GAN-style cross-miner oversight](https://macrocosmosai.substack.com/p/sn1-apex-introducing-gan-style-activity).
 
-Beachhead: code-track in Python (SWE-bench-Pro-style sandboxed Docker graders). Code-track in Rust at +3 months. Math-track (Lean 4 + mathlib4) at +6 months. Cross-subnet judgement oracle layered on top.
+Beachhead: code-track in Python (SWE-bench-Pro-style sandboxed Docker graders). Code-track in Rust as a follow-up domain. Math-track (Lean 4 + mathlib4) added once the code track is stable. Cross-subnet judgement oracle layered on top.
 
 ## Relationship to Apex
 
@@ -42,8 +42,8 @@ Real implementation order:
 2. **Chutes panel inference** (real API client; required for difficulty signal and frontier-confidence layer)
 3. **Novelty layered modules** (n-gram and LSH first because cheapest; AST fingerprint Python-only at launch; embedding as soft fallback)
 4. **Calibration injection wiring** in the discriminator scoring path
-5. **Real Lean kernel** integration (math track, +6 months)
-6. **AST fingerprint Rust** (+3 months) and **Lean** (+6 months)
+5. **Real Lean kernel** integration (math track; deferred until math track goes live)
+6. **AST fingerprint** for Rust and Lean (deferred to their respective track go-lives)
 
 ## Layout
 
@@ -120,9 +120,9 @@ Tree-sitter supports 141+ languages but each requires a custom canonicalization 
 
 | Domain | Status at launch | Why |
 |---|---|---|
-| `code_python` | implemented (real fingerprint module, month 0-1) | beachhead; aligned with SWE-bench Pro demand |
-| `code_rust` | stub at launch, real at month 3 | second-priority code track |
-| `math_lean4` | stub at launch, real at month 6 | uses Lean kernel terms, not tree-sitter; depends on math-track go-live |
+| `code_python` | implemented at launch (real fingerprint module) | beachhead; aligned with SWE-bench Pro demand |
+| `code_rust` | stub at launch; real implementation as a follow-up | second-priority code track |
+| `math_lean4` | stub at launch; deferred until math track goes live | uses Lean kernel terms, not tree-sitter |
 
 Until a domain's fingerprint is real, the layered orchestrator falls back to n-gram + LSH + embedding for that domain. AST fingerprint is one of five novelty layers; absence weakens but doesn't break the detection.
 
@@ -132,7 +132,7 @@ A 1-of-N panel solve is a noisy signal. Defenses:
 
 - **Quorum threshold** (`panel_quorum_threshold` hyperparameter, default 0.75): a problem is flagged as likely-memorized only when at least 75% of the panel solves it at low temperature. Single-model solve does not trigger.
 - **Vendor diversity**: default panel spans 3 vendors (Anthropic, OpenAI, Google). Quarterly governance vote rotates panel composition; previous panel snapshot is pinned per accepted problem so historical scoring stays auditable.
-- **Cutoff diversity at launch**: default panel pairs 3 flagship models with 3 elder models from the same vendors (`claude-opus-4-7` with `claude-sonnet-3-5`, `gpt-5-3-codex` with `gpt-4o`, `gemini-3-1-pro` with `gemini-1-5-pro`). Per-model training cutoffs are recorded with each accepted problem in the panel snapshot. The strongest contamination signal is elder-solve-while-flagship-fails, which points to memorization in an older training corpus.
+- **Cutoff diversity at launch**: default panel pairs 3 flagship models with 3 elder models from the same vendors (Claude Opus 4.7 with Claude Sonnet 3.5, GPT-5.3 Codex with GPT-4o, Gemini 3.1 Pro with Gemini 1.5 Pro). Display names are used in config; the integration layer resolves them to actual Chutes endpoint IDs at call time. Per-model training cutoffs are recorded with each accepted problem in the panel snapshot. The strongest contamination signal is elder-solve-while-flagship-fails, which points to memorization in an older training corpus.
 
 ### Calibration corpus refresh interval
 

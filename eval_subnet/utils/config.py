@@ -277,8 +277,8 @@ def add_validator_args(cls, parser):
     parser.add_argument(
         "--neuron.frontier_panel",
         type=str,
-        help="Comma-separated panel model IDs. Default pairs 3 flagship and 3 elder models for cutoff diversity. Quarterly governance rotates composition; pinned snapshot is recorded per accepted problem.",
-        default="claude-opus-4-7,gpt-5-3-codex,gemini-3-1-pro,claude-sonnet-3-5,gpt-4o,gemini-1-5-pro",
+        help="Comma-separated panel display names. Default pairs 3 flagship and 3 elder models for cutoff diversity. Integration layer resolves display names to Chutes endpoint IDs at call time. Governance rotates composition on subnet vote; pinned snapshot is recorded per accepted problem.",
+        default="Claude Opus 4.7,GPT-5.3 Codex,Gemini 3.1 Pro,Claude Sonnet 3.5,GPT-4o,Gemini 1.5 Pro",
     )
 
     parser.add_argument(

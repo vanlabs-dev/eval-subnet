@@ -277,8 +277,22 @@ def add_validator_args(cls, parser):
     parser.add_argument(
         "--neuron.frontier_panel",
         type=str,
-        help="Comma-separated frontier model IDs used as the difficulty oracle panel.",
+        help="Comma-separated frontier model IDs used as the difficulty oracle panel. Quarterly governance rotates composition; pinned snapshot is recorded per accepted problem.",
         default="claude-opus-4-7,gpt-5-3-codex,gemini-3-1-pro,gpt-5-4-pro",
+    )
+
+    parser.add_argument(
+        "--neuron.panel_quorum_threshold",
+        type=float,
+        help="Fraction of panel models that must solve at low temperature for a problem to be flagged as likely-memorized.",
+        default=0.75,
+    )
+
+    parser.add_argument(
+        "--neuron.calibration_corpus_refresh_days",
+        type=int,
+        help="How often the held-out calibration corpus is refreshed. Default 30 days (LiveBench / LiveCodeBench monthly cadence). Quarterly is an option for budget-constrained operation.",
+        default=30,
     )
 
     parser.add_argument(

@@ -1,10 +1,10 @@
 # Eval Subnet
 
-Bittensor subnet that produces uncontaminated evaluation problems for frontier labs and AI Safety Institutes.
+Bittensor subnet building a permissionless contamination-detection R&D network. The product is the layered anti-contamination architecture: n-gram match, MinHash LSH, AST structural fingerprint, frontier-confidence inverse-MIA, and embedding similarity, anchored by periodic ground-truth corpus crawls. Buyers (frontier labs, AI Safety Institutes) get a stream of bonded, mechanically-verified, novelty-attested evaluation problems.
 
-Beachhead: code (SWE-bench-Pro-style sandboxed Docker graders). Math (Lean 4 + mathlib4) added later.
+The three-role GAN mechanism (generator + discriminator + solver miners) is the incentive structure that pays contributors to keep the contamination layer evolving against frontier models. Inspired by Macrocosmos' [Apex 3.0](https://macrocosmosai.substack.com/p/apex-30-game-theoretic-ai-on-bittensor) and [GAN-style cross-miner oversight](https://macrocosmosai.substack.com/p/sn1-apex-introducing-gan-style-activity).
 
-Mechanism: three-role GAN-style (generator + discriminator + solver miners), inspired by Macrocosmos' [Apex 3.0](https://macrocosmosai.substack.com/p/apex-30-game-theoretic-ai-on-bittensor) and [GAN-style cross-miner oversight](https://macrocosmosai.substack.com/p/sn1-apex-introducing-gan-style-activity). Cross-subnet judgement oracle layered on top.
+Beachhead: code-track in Python (SWE-bench-Pro-style sandboxed Docker graders). Code-track in Rust at +3 months. Math-track (Lean 4 + mathlib4) at +6 months. Cross-subnet judgement oracle layered on top.
 
 ## Relationship to Apex
 
@@ -23,7 +23,15 @@ Pattern attribution: the GAN-style cross-miner oversight design is Macrocosmos' 
 
 ## Status
 
-Skeleton. Synapses defined. Validator forward, reward functions, and oracle interfaces stubbed. Real Lean kernel wrapper works if `lean` is on PATH; Docker grader, Chutes inference, novelty embedding are next.
+Skeleton. Synapses defined. Validator forward phases 1-6 wired against stubs. Reward functions, oracle public APIs, hash-stable routing with commit-reveal salt, validator-assigned solver subset, difficulty-band hyperparameter, pinned panel snapshot all in place.
+
+Real implementation order:
+1. **Docker grader** (Python first; the validity gate for the code-only beachhead)
+2. **Chutes panel inference** (real API client; required for difficulty signal and frontier-confidence layer)
+3. **Novelty layered modules** (n-gram and LSH first because cheapest; AST fingerprint Python-only at launch; embedding as soft fallback)
+4. **Calibration injection wiring** in the discriminator scoring path
+5. **Real Lean kernel** integration (math track, +6 months)
+6. **AST fingerprint Rust** (+3 months) and **Lean** (+6 months)
 
 ## Layout
 
@@ -93,6 +101,32 @@ Two distinct calibration layers, often conflated:
 The contamination problem is genuinely unsolved at scale. Layered detection catches verbatim and near-verbatim lifts deterministically (n-gram + LSH + AST fingerprint, ~95% of librarian-style attacks). Deep semantic-equivalence contamination (the surface form is novel but the underlying solution is memorized) is detected probabilistically via frontier-confidence inversion and the discriminator-miner game; no current method is individually reliable for this.
 
 The subnet's structural advantage is that the discriminator-miner pool is a market-driven contamination-detection R&D process, paid to invent novel detection methods. The validator's job is to provide periodic ground-truth grounding via expensive corpus crawl on a sample (the `calibration` submodule), not to solve detection alone.
+
+### Scope of the AST fingerprint layer
+
+Tree-sitter supports 141+ languages but each requires a custom canonicalization pass (rename locals, normalize literals, strip comments and whitespace). Launch coverage is intentionally narrow:
+
+| Domain | Status at launch | Why |
+|---|---|---|
+| `code_python` | implemented (real fingerprint module, month 0-1) | beachhead; aligned with SWE-bench Pro demand |
+| `code_rust` | stub at launch, real at month 3 | second-priority code track |
+| `math_lean4` | stub at launch, real at month 6 | uses Lean kernel terms, not tree-sitter; depends on math-track go-live |
+
+Until a domain's fingerprint is real, the layered orchestrator falls back to n-gram + LSH + embedding for that domain. AST fingerprint is one of five novelty layers; absence weakens but doesn't break the detection.
+
+### Panel composition for inverse-MIA
+
+A 1-of-N panel solve is a noisy signal. Defenses:
+
+- **Quorum threshold** (`panel_quorum_threshold` hyperparameter, default 0.75): a problem is flagged as likely-memorized only when at least 75% of the panel solves it at low temperature. Single-model solve does not trigger.
+- **Vendor diversity**: default panel spans 3+ vendors (Anthropic, OpenAI, Google). Quarterly governance vote rotates panel composition; previous panel snapshot is pinned per accepted problem so historical scoring stays auditable.
+- **Cutoff diversity** (planned): older models with earlier training cutoffs catch problems that flagship-tier-misses-but-elder-solves, which is itself a contamination signal.
+
+### Calibration corpus refresh interval
+
+Quarterly is too slow given how fast frontier models consume new data. Default refresh cadence is **monthly** (`calibration_corpus_refresh_days` hyperparameter, default 30), aligned with [LiveCodeBench rolling release](https://livecodebench.github.io/) and [LiveBench monthly cadence](https://livebench.ai/livebench.pdf). Quarterly stays available as an option for budget-constrained operation but is not the default.
+
+The held-out corpus stays disjoint from the public corpus index, so discriminators who overfit to "I have memorized the calibration set" still help with calibration-injection scoring while learning nothing useful for real contamination detection. The risk is that the held-out corpus itself becomes contaminated as frontier models scrape new data; faster refresh narrows this window.
 
 ## Local dev
 

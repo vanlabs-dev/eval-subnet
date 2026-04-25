@@ -303,6 +303,20 @@ def add_validator_args(cls, parser):
     )
 
     parser.add_argument(
+        "--neuron.bond_size",
+        type=float,
+        help="Default collateral bond miners deposit per submission via collateral-contracts. Slashed on validator-detected contamination, invalid grader, or fraud.",
+        default=1.0,
+    )
+
+    parser.add_argument(
+        "--neuron.embargo_epochs",
+        type=int,
+        help="Number of epochs an accepted problem is withheld from subscriber delivery. Validators run sampled ground-truth checks during the window.",
+        default=10,
+    )
+
+    parser.add_argument(
         "--wandb.project_name",
         type=str,
         help="The name of the project where you are sending the new run.",

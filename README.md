@@ -20,6 +20,16 @@ Beachhead: code-track in Python (SWE-bench-Pro-style sandboxed Docker graders). 
 
 Demand pull: OpenAI deprecated [SWE-bench Verified](https://www.swebench.com/) in favor of [SWE-bench Pro](https://labs.scale.com/leaderboard/swe_bench_pro_public) in early 2026 due to contamination concerns. Claude Opus 4.5 scored 80.9% on Verified vs 45.9% on Pro. Frontier labs are operationally paying the cost of contaminated benchmarks right now.
 
+## Why Bittensor
+
+Three structural primitives this subnet depends on that a standalone product cannot replicate:
+
+- **Slashable per-problem bonds** via [collateral-contracts](https://github.com/bittensor-church/collateral-contracts) (production at SN51 LIUM). The bond is the quality signal; a SaaS provider would have to operate as a regulated bond issuer.
+- **Permissionless contributor entry**, with stake-backed slashing replacing centralized vetting. Scales to thousands of contamination-detection R&D contributors without per-contributor onboarding overhead.
+- **Cross-subnet composability:** Chutes (SN64) for TEE-backed inference, Targon (SN4) as redundant TEE, DSperse (SN2) for zkML proof of grader execution, Data Universe (SN13) for corpus snapshots. A standalone product would have to verticalize this whole stack.
+
+The market-driven R&D angle (discriminator-miners paid to invent novel contamination detection methods) is what Bittensor specifically enables. Standalone benchmark vendors like FrontierMath and HLE depend on slow, expensive expert recruitment.
+
 ## Relationship to Apex
 
 We borrow the adversarial-game pattern from Apex 3.0 (SN1). The product, scoring, and ground truth differ:
@@ -46,6 +56,25 @@ Real implementation order:
 4. **Calibration injection wiring** in the discriminator scoring path
 5. **Real Lean kernel** integration (math track; deferred until math track goes live)
 6. **AST fingerprint** for Rust and Lean (deferred to their respective track go-lives)
+
+## For buyers
+
+The product is a subscription stream of bonded, mechanically-verified, novelty-attested evaluation problems delivered through an encrypted off-chain channel. Each problem package contains:
+
+- Natural-language statement with an embedded canary string
+- Formal solution (Lean 4 proof or reference test-passing solution)
+- Hidden test suite (Docker image hash for code track) the buyer can run locally
+- On-chain bond record proving stake-backed novelty attestation
+- Pinned panel snapshot showing which flagship and elder models were used to score difficulty
+- Layered novelty signals (per-layer score plus aggregate)
+
+Pricing is per accepted-problem-count per tempo. Fiat onboarding via a regulated payment processor; internally converts to TAO and stakes on validator hotkeys so buyer payments translate to alpha accrual for participants. AISIs and frontier labs procuring under EU AI Act Article 55 receive an audit trail (canary records, bond ledger, panel snapshot) sufficient for regulatory submissions.
+
+### Delivery and contamination-window controls
+
+- **Embargo:** accepted problems are held for `--neuron.embargo_epochs` (default 10) before subscriber delivery. Validators run sampled ground-truth checks and slash fraudulent attestations during the embargo window.
+- **Canary string:** every problem has a unique cryptographic identifier embedded in the natural-language statement. Subscription contracts obligate buyers to filter canaries from any training data they generate; canary appearance in a future model output is auditable post-facto evidence of contract breach.
+- **Rolling release:** each problem has a TTL of one paid consumption window. After expiry, the problem is declassified to a public benchmark canon (free, indexable). Public canon serves as marketing and as ground truth for novelty filtering of future submissions.
 
 ## Layout
 
@@ -79,6 +108,17 @@ neurons/
 | Generator | `(statement, formal_solution, grader)` | validity (Lean kernel / Docker grader), novelty (layered), frontier-panel fail rate, solver fail rate |
 | Discriminator | contamination confidence in [0, 1] + optional evidence URL | correlation with periodic ground-truth + peer consensus; calibration-injection misses are slashed |
 | Solver | proposed solution | validator independently runs the grader on the submitted solution; the only signal is whether the grader passes |
+
+## Bonded submission mechanic
+
+Each accepted problem ships with an on-chain bond record:
+
+- Generator, discriminator, and solver miners all deposit collateral via the [collateral-contracts](https://github.com/bittensor-church/collateral-contracts) EVM contract (production at SN51 LIUM). Default bond size is set by `--neuron.bond_size` (default 1 alpha).
+- The subnet validator-set holds slashing authority. `slashCollateral` fires with an on-chain evidence URL when subsequent ground-truth grounding exposes contamination, an invalid grader, or a non-typechecking proof.
+- Slashed alpha flows to a subnet treasury or to the buyer that purchased the contaminated problem, per subscription contract terms.
+- Discriminators that miss multiple calibration-injection problems in a row are slashed for fraud, not just for noisy guessing.
+
+Buyers receive not just the problem but the bond record. The bond is the quality signal that differentiates the product from centralized eval vendors.
 
 ## Validator forward (per tempo)
 
@@ -147,6 +187,18 @@ A 1-of-N panel solve is a noisy signal. Defenses:
 Quarterly is too slow given how fast frontier models consume new data. Default refresh cadence is **monthly** (`calibration_corpus_refresh_days` hyperparameter, default 30), aligned with [LiveCodeBench rolling release](https://livecodebench.github.io/) and [LiveBench monthly cadence](https://livebench.ai/livebench.pdf). Quarterly stays available as an option for budget-constrained operation but is not the default.
 
 The held-out corpus stays disjoint from the public corpus index, so discriminators who overfit to "I have memorized the calibration set" still help with calibration-injection scoring while learning nothing useful for real contamination detection. The risk is that the held-out corpus itself becomes contaminated as frontier models scrape new data; faster refresh narrows this window.
+
+## Collusion defenses
+
+The three-role design plus several Bittensor primitives layer to make collusion uneconomic:
+
+- **Validator weight collusion:** κ=0.5 clipping (YC3 bond decay penalizes validators drifting from consensus); commit-reveal of validator weights via Drand time-lock so copiers see only stale matrices.
+- **Generator-discriminator pairing:** hash-stable random routing of discriminators to problems, with commit-reveal of the routing salt. Generators cannot predict which discriminators see their submission while the submission window is open.
+- **Solver-generator pairing:** validator-assigned solver subset (k≥3, hash-stable per problem) prevents solver cherry-picking; cross-check against the frontier panel for statistical anomalies.
+- **Discriminator herding to "all novel":** periodic injection of synthetic-contaminated problems from the held-out calibration corpus. Discriminators that miss multiple injections in a row are slashed via collateral-contracts.
+- **Subnet-operator capture (Covenant pattern):** [BIT-0011 Conviction Mechanism](https://www.ainvest.com/news/bittensor-tao-governance-crisis-explained-covenant-ai-exit-bit-0011-proposal-2604/) ties subnet ownership to time-locked alpha-stake; ownership is challengeable by any higher-conviction staker.
+
+Anomaly detection on validator clusters runs against the public weight matrix; statistical outliers trigger ground-truth audit and slashing. None of these is bulletproof on its own; layered, they raise collusion cost above the expected return.
 
 ## Local dev
 

@@ -2,9 +2,9 @@
 
 # EVAL SUBNET
 
-**The contamination-resistant eval layer for frontier AI on Bittensor**
+**Bonded, contamination-resistant evals for frontier AI on Bittensor**
 
-*Decentralized contamination-detection R&D. Miners discover novel problems against frontier-model memorization. Truth wins.*
+*Three miner roles produce, vet, and stress-test fresh problems. Each ships with a stake-backed novelty attestation, anchored by layered contamination detection.*
 
 ![python](https://img.shields.io/badge/python-3.10%2B-3776AB) ![license](https://img.shields.io/badge/license-MIT-green) ![status](https://img.shields.io/badge/status-skeleton-orange)
 

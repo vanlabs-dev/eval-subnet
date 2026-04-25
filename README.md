@@ -131,8 +131,8 @@ Until a domain's fingerprint is real, the layered orchestrator falls back to n-g
 A 1-of-N panel solve is a noisy signal. Defenses:
 
 - **Quorum threshold** (`panel_quorum_threshold` hyperparameter, default 0.75): a problem is flagged as likely-memorized only when at least 75% of the panel solves it at low temperature. Single-model solve does not trigger.
-- **Vendor diversity**: default panel spans 3+ vendors (Anthropic, OpenAI, Google). Quarterly governance vote rotates panel composition; previous panel snapshot is pinned per accepted problem so historical scoring stays auditable.
-- **Cutoff diversity** (planned): older models with earlier training cutoffs catch problems that flagship-tier-misses-but-elder-solves, which is itself a contamination signal.
+- **Vendor diversity**: default panel spans 3 vendors (Anthropic, OpenAI, Google). Quarterly governance vote rotates panel composition; previous panel snapshot is pinned per accepted problem so historical scoring stays auditable.
+- **Cutoff diversity at launch**: default panel pairs 3 flagship models with 3 elder models from the same vendors (`claude-opus-4-7` with `claude-sonnet-3-5`, `gpt-5-3-codex` with `gpt-4o`, `gemini-3-1-pro` with `gemini-1-5-pro`). Per-model training cutoffs are recorded with each accepted problem in the panel snapshot. The strongest contamination signal is elder-solve-while-flagship-fails, which points to memorization in an older training corpus.
 
 ### Calibration corpus refresh interval
 

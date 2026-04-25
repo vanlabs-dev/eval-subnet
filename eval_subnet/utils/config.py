@@ -277,8 +277,8 @@ def add_validator_args(cls, parser):
     parser.add_argument(
         "--neuron.frontier_panel",
         type=str,
-        help="Comma-separated frontier model IDs used as the difficulty oracle panel. Quarterly governance rotates composition; pinned snapshot is recorded per accepted problem.",
-        default="claude-opus-4-7,gpt-5-3-codex,gemini-3-1-pro,gpt-5-4-pro",
+        help="Comma-separated panel model IDs. Default pairs 3 flagship and 3 elder models for cutoff diversity. Quarterly governance rotates composition; pinned snapshot is recorded per accepted problem.",
+        default="claude-opus-4-7,gpt-5-3-codex,gemini-3-1-pro,claude-sonnet-3-5,gpt-4o,gemini-1-5-pro",
     )
 
     parser.add_argument(

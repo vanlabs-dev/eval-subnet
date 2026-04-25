@@ -1,4 +1,16 @@
-# Eval Subnet
+<div align="center">
+
+# EVAL SUBNET
+
+**The contamination-resistant eval layer for frontier AI on Bittensor**
+
+*Decentralized contamination-detection R&D. Miners discover novel problems against frontier-model memorization. Truth wins.*
+
+![python](https://img.shields.io/badge/python-3.10%2B-3776AB) ![license](https://img.shields.io/badge/license-MIT-green) ![status](https://img.shields.io/badge/status-skeleton-orange)
+
+</div>
+
+---
 
 Bittensor subnet building a permissionless contamination-detection R&D network. The product is the layered anti-contamination architecture: n-gram match, MinHash LSH, AST structural fingerprint, frontier-confidence inverse-MIA, and embedding similarity, anchored by periodic ground-truth corpus crawls. Buyers (frontier labs, AI Safety Institutes) get a stream of bonded, mechanically-verified, novelty-attested evaluation problems.
 

@@ -4,9 +4,24 @@ Bittensor subnet that produces uncontaminated evaluation problems for frontier l
 
 Beachhead: code (SWE-bench-Pro-style sandboxed Docker graders). Math (Lean 4 + mathlib4) added later.
 
-Mechanism: V8 three-role GAN-style (generator + discriminator + solver miners), inspired by Macrocosmos' Apex 3.0. V9 cross-subnet judgement oracle layered on top.
+Mechanism: V8 three-role GAN-style (generator + discriminator + solver miners), inspired by Macrocosmos' [Apex 3.0](https://macrocosmosai.substack.com/p/apex-30-game-theoretic-ai-on-bittensor) and [GAN-style cross-miner oversight](https://macrocosmosai.substack.com/p/sn1-apex-introducing-gan-style-activity). V9 cross-subnet judgement oracle layered on top.
 
 Full design rationale (gate audit, anti-exploit catalog, BIT-0011 Conviction context, gate-9 argument, cross-subnet composability): `docs/subnet-design-frontier-eval.md` in the [idea-research](../idea-research) repo.
+
+## Relationship to Apex
+
+We borrow the adversarial-game pattern from Apex 3.0 (SN1). The product, scoring, and ground truth differ:
+
+| | Apex (SN1) | Eval Subnet |
+|---|---|---|
+| Roles | 2 (generator + discriminator) | 3 (+ solver) |
+| Who creates problems | Validator | Generator-miners |
+| Ground truth | Validator's reference, string + semantic similarity | Mechanical: Lean kernel typecheck or sandboxed test suite |
+| Domain | General conversation | Math + competitive programming |
+| Buyer | API consumers, app builders | Frontier labs and AI Safety Institutes |
+| Anti-contamination layer | n/a | Embargo, canary strings, rolling release, calibration injection |
+
+Pattern attribution: the GAN-style cross-miner oversight design is Macrocosmos' contribution. This subnet extends it.
 
 ## Status
 

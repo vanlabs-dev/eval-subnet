@@ -37,7 +37,13 @@ eval_subnet/
     lean.py                Lean 4 kernel typecheck wrapper
     docker_grader.py       SWE-bench-Pro-style sandbox runner
     chutes.py              SN64 frontier-panel inference client
-    novelty.py             embedding-based contamination detection
+    novelty/               layered contamination detection
+      ngram.py               LONGEST-MATCH n-gram against corpus
+      lsh.py                 MinHash LSH near-duplicate
+      ast_fingerprint.py     Lean AST / tree-sitter structural hash
+      frontier_confidence.py inverse-MIA panel-solve signal
+      embedding.py           dense-embedding cosine similarity
+      calibration.py         periodic ground-truth corpus crawl
   base/, api/, utils/, mock/   from bittensor-subnet-template
 neurons/
   miner.py                 role-aware miner
@@ -46,11 +52,11 @@ neurons/
 
 ## Roles
 
-| Role | Submits |
-|---|---|
-| Generator | `(statement, formal_solution, grader)` |
-| Discriminator | confidence in [0, 1] + optional evidence URL |
-| Solver | proposed solution + success bool |
+| Role | Submits | Scored on |
+|---|---|---|
+| Generator | `(statement, formal_solution, grader)` | validity (Lean kernel / Docker grader), novelty (layered), frontier-panel fail rate, solver fail rate |
+| Discriminator | contamination confidence in [0, 1] + optional evidence URL | correlation with periodic ground-truth + peer consensus; calibration-injection misses are slashed |
+| Solver | proposed solution | validator independently runs the grader on the submitted solution; the only signal is whether the grader passes |
 
 ## Validator forward (per tempo)
 
@@ -68,11 +74,25 @@ neurons/
 | Lean 4 kernel | local toolchain (elan + lake) | works if `lean` on PATH |
 | Docker grader | local Docker daemon | stub |
 | Frontier panel | Chutes (SN64), Intel TDX TEE | stub |
-| Novelty | embedding model + corpus index | stub |
+| Novelty | layered: n-gram, MinHash LSH, AST fingerprint, frontier-confidence, embedding | stubs with public API |
 
 ## Multi-mechanism
 
 Three mechanisms with `sudo_set_mechanism_emission_split([32767, 16384, 16384])` for [50%, 25%, 25%] (generator-heavy at launch).
+
+## Calibration
+
+Two distinct calibration layers, often conflated:
+
+**Discriminator calibration.** Validators periodically inject synthetic-contaminated problems (lifted from a held-out corpus that's not in the public index). Discriminators that fail to flag them are slashed. Default injection rate: 1 in 25 problems. The held-out corpus is refreshed quarterly to prevent discriminators from learning the calibration distribution.
+
+**Difficulty-curve calibration.** Generators are accepted only if frontier-panel fail rate falls in `[0.75, 0.95]` (the `difficulty_target_band` hyperparameter). Below 0.75 is too easy; above 0.95 is potentially nonsensical or unsolvable. Each accepted problem is timestamped with its acceptance epoch and the panel snapshot in use, so difficulty drift is observable as panel composition evolves.
+
+## Limits of contamination detection
+
+The contamination problem is genuinely unsolved at scale. Layered detection catches verbatim and near-verbatim lifts deterministically (n-gram + LSH + AST fingerprint, ~95% of librarian-style attacks). Deep semantic-equivalence contamination (the surface form is novel but the underlying solution is memorized) is detected probabilistically via frontier-confidence inversion and the discriminator-miner game; no current method is individually reliable for this.
+
+The subnet's structural advantage is that the discriminator-miner pool is a market-driven contamination-detection R&D process, paid to invent novel detection methods. The validator's job is to provide periodic ground-truth grounding via expensive corpus crawl on a sample (the `calibration` submodule), not to solve detection alone.
 
 ## Local dev
 

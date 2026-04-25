@@ -40,5 +40,5 @@ def score_discriminator(
     return 1.0 - abs(contamination_confidence - target)
 
 
-def score_solver(*, valid_solution: bool) -> float:
-    return 1.0 if valid_solution else 0.0
+def score_solver(*, grader_passed: bool) -> float:
+    return 1.0 if grader_passed else 0.0

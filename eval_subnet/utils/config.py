@@ -233,6 +233,55 @@ def add_validator_args(cls, parser):
     )
 
     parser.add_argument(
+        "--neuron.difficulty_target_min",
+        type=float,
+        help="Lower bound of the panel-fail-rate band; problems below are too easy.",
+        default=0.75,
+    )
+
+    parser.add_argument(
+        "--neuron.difficulty_target_max",
+        type=float,
+        help="Upper bound of the panel-fail-rate band; problems above are likely nonsensical.",
+        default=0.95,
+    )
+
+    parser.add_argument(
+        "--neuron.k_discriminators",
+        type=int,
+        help="Number of discriminator-miners routed per epoch (hash-stable subset).",
+        default=20,
+    )
+
+    parser.add_argument(
+        "--neuron.k_solvers",
+        type=int,
+        help="Number of solver-miners routed per accepted problem (hash-stable subsample, k>=3).",
+        default=3,
+    )
+
+    parser.add_argument(
+        "--neuron.calibration_injection_rate",
+        type=float,
+        help="Fraction of problems each epoch that are validator-injected synthetic-contaminated calibration items.",
+        default=0.04,
+    )
+
+    parser.add_argument(
+        "--neuron.corpus_index_path",
+        type=str,
+        help="Path to the public-corpus index for novelty layered detection.",
+        default=None,
+    )
+
+    parser.add_argument(
+        "--neuron.frontier_panel",
+        type=str,
+        help="Comma-separated frontier model IDs used as the difficulty oracle panel.",
+        default="claude-opus-4-7,gpt-5-3-codex,gemini-3-1-pro,gpt-5-4-pro",
+    )
+
+    parser.add_argument(
         "--wandb.project_name",
         type=str,
         help="The name of the project where you are sending the new run.",

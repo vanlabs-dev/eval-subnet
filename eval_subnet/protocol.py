@@ -35,7 +35,6 @@ class DiscriminatorSynapse(_BaseEvalSynapse):
 class SolverSynapse(_BaseEvalSynapse):
     target_problem_hash: str = ""
     proposed_solution: str = ""
-    solve_success: bool = False
 
     def deserialize(self) -> "SolverSynapse":
         return self
